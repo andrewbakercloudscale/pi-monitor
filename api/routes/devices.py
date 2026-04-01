@@ -15,7 +15,7 @@ class LabelUpdate(BaseModel):
 async def list_devices():
     devices = await pihole.get_devices()
     # Merge stored labels from app.db
-    async with await get_app_db() as db:
+    async with get_app_db() as db:
         rows = await db.execute_fetchall("SELECT mac, label FROM devices")
         labels = {r["mac"]: r["label"] for r in rows}
 
@@ -30,7 +30,7 @@ async def list_devices():
 @router.patch("/devices/{mac}")
 async def update_device(mac: str, body: LabelUpdate):
     mac = mac.lower()
-    async with await get_app_db() as db:
+    async with get_app_db() as db:
         await db.execute(
             """
             INSERT INTO devices (mac, label) VALUES (?, ?)

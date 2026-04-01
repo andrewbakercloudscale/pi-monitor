@@ -35,7 +35,7 @@ def _day_bounds(d: date) -> tuple[int, int]:
 async def get_stats(for_date: date | None = None) -> dict:
     d = for_date or date.today()
     start, end = _day_bounds(d)
-    async with await get_pihole_db() as db:
+    async with get_pihole_db() as db:
         row = await db.execute_fetchall(
             f"""
             SELECT
@@ -59,7 +59,7 @@ async def get_stats(for_date: date | None = None) -> dict:
 async def get_devices() -> list[dict]:
     """Return all devices Pi-hole has seen, with today's query/block counts."""
     start, end = _day_bounds(date.today())
-    async with await get_pihole_db() as db:
+    async with get_pihole_db() as db:
         rows = await db.execute_fetchall(
             f"""
             SELECT
@@ -91,7 +91,7 @@ async def get_device_traffic(mac: str, for_date: date | None = None) -> list[dic
     """Top queried domains for a single device on a given day."""
     d = for_date or date.today()
     start, end = _day_bounds(d)
-    async with await get_pihole_db() as db:
+    async with get_pihole_db() as db:
         rows = await db.execute_fetchall(
             f"""
             SELECT q.domain, COUNT(*) AS count
@@ -114,7 +114,7 @@ async def get_device_blocks(mac: str, for_date: date | None = None) -> list[dict
     """Blocked domains for a single device on a given day."""
     d = for_date or date.today()
     start, end = _day_bounds(d)
-    async with await get_pihole_db() as db:
+    async with get_pihole_db() as db:
         rows = await db.execute_fetchall(
             f"""
             SELECT
@@ -148,7 +148,7 @@ async def get_top_domains(for_date: date | None = None, limit: int = 50) -> list
     """Global top queried domains for a day."""
     d = for_date or date.today()
     start, end = _day_bounds(d)
-    async with await get_pihole_db() as db:
+    async with get_pihole_db() as db:
         rows = await db.execute_fetchall(
             f"""
             SELECT domain, COUNT(*) AS count
@@ -168,7 +168,7 @@ async def get_top_blocks(for_date: date | None = None, limit: int = 50) -> list[
     """Global top blocked domains for a day."""
     d = for_date or date.today()
     start, end = _day_bounds(d)
-    async with await get_pihole_db() as db:
+    async with get_pihole_db() as db:
         rows = await db.execute_fetchall(
             f"""
             SELECT

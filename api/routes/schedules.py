@@ -17,7 +17,7 @@ class ScheduleIn(BaseModel):
 
 @router.get("/schedules")
 async def list_schedules():
-    async with await get_app_db() as db:
+    async with get_app_db() as db:
         rows = await db.execute_fetchall("SELECT * FROM schedules ORDER BY scope_type, scope_key")
     return {"schedules": [dict(r) for r in rows]}
 
@@ -27,7 +27,7 @@ async def upsert_schedule(body: ScheduleIn):
     if body.scope_type not in ("category", "service"):
         raise HTTPException(400, "scope_type must be 'category' or 'service'")
 
-    async with await get_app_db() as db:
+    async with get_app_db() as db:
         await db.execute(
             """
             INSERT INTO schedules
@@ -58,7 +58,7 @@ async def upsert_schedule(body: ScheduleIn):
 
 @router.delete("/schedules/{schedule_id}")
 async def delete_schedule(schedule_id: int):
-    async with await get_app_db() as db:
+    async with get_app_db() as db:
         rows = await db.execute_fetchall(
             "SELECT id FROM schedules WHERE id = ?", (schedule_id,)
         )

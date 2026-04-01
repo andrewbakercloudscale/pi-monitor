@@ -47,7 +47,7 @@ CATEGORIES = {
 
 @router.get("/rules")
 async def list_rules(category: str | None = None):
-    async with await get_app_db() as db:
+    async with get_app_db() as db:
         if category:
             rows = await db.execute_fetchall(
                 "SELECT * FROM rules WHERE category = ? ORDER BY service_key, value",
@@ -62,7 +62,7 @@ async def list_rules(category: str | None = None):
 
 @router.post("/rules/{rule_id}/toggle")
 async def toggle_rule(rule_id: int):
-    async with await get_app_db() as db:
+    async with get_app_db() as db:
         rows = await db.execute_fetchall("SELECT * FROM rules WHERE id = ?", (rule_id,))
         if not rows:
             raise HTTPException(404, "Rule not found")
@@ -96,7 +96,7 @@ async def toggle_category(slug: str):
     if slug not in CATEGORIES:
         raise HTTPException(404, "Category not found")
 
-    async with await get_app_db() as db:
+    async with get_app_db() as db:
         rows = await db.execute_fetchall(
             "SELECT * FROM rules WHERE category = ? AND is_custom = 0", (slug,)
         )
@@ -153,7 +153,7 @@ async def add_custom_rule(body: CustomRuleIn):
     except RuntimeError as exc:
         raise HTTPException(500, str(exc))
 
-    async with await get_app_db() as db:
+    async with get_app_db() as db:
         await db.execute(
             """
             INSERT INTO rules (name, category, service_key, rule_type, value, is_blocked, is_custom)
@@ -171,7 +171,7 @@ async def add_custom_rule(body: CustomRuleIn):
 
 @router.delete("/rules/{rule_id}")
 async def delete_rule(rule_id: int):
-    async with await get_app_db() as db:
+    async with get_app_db() as db:
         rows = await db.execute_fetchall(
             "SELECT * FROM rules WHERE id = ? AND is_custom = 1", (rule_id,)
         )

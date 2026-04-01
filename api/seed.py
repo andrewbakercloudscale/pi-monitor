@@ -89,7 +89,7 @@ RULES = [
 
 
 async def seed():
-    async with await get_app_db() as db:
+    async with get_app_db() as db:
         existing = await db.execute_fetchall("SELECT value FROM rules WHERE is_custom = 0")
         existing_values = {r["value"] for r in existing}
 

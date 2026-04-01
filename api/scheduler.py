@@ -40,7 +40,7 @@ async def evaluate():
     weekend  = dow >= 5
     now_secs = now_utc.hour * 3600 + now_utc.minute * 60 + now_utc.second
 
-    async with await get_app_db() as db:
+    async with get_app_db() as db:
         schedules = await db.execute_fetchall("SELECT * FROM schedules WHERE enabled = 1")
 
         for sched in schedules:
