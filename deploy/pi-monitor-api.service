@@ -1,0 +1,15 @@
+[Unit]
+Description=pi-monitor FastAPI backend
+After=network.target pihole-FTL.service
+
+[Service]
+Type=simple
+User=pi
+WorkingDirectory=/opt/pi-monitor/api
+EnvironmentFile=/opt/pi-monitor/.env
+ExecStart=/opt/pi-monitor/venv/bin/python main.py
+Restart=on-failure
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target

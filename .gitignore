@@ -1,0 +1,21 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+dist/
+*.db
+
+# Node
+node_modules/
+.next/
+out/
+.env.local
+*.env
+
+# Pi deploy artefacts
+/opt/
+
+# macOS
+.DS_Store
