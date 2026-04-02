@@ -2,20 +2,20 @@
 main.py — pi-monitor FastAPI application
 
 Runs on the Raspberry Pi at 127.0.0.1:8080
-Exposed to the internet via cloudflared tunnel → api.pi.andrewbaker.ninja
+Exposed to the internet via cloudflared tunnel → api-pi.andrewbaker.ninja
 Protected by Cloudflare Access (Google SSO)
 """
 
 from contextlib import asynccontextmanager
 import logging
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 import db as database
 import seed as seeder
 import scheduler
-from routes import stats, devices, traffic, rules, schedules
+from routes import stats, devices, traffic, rules, schedules, settings
 from config import BIND_HOST, BIND_PORT
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -48,11 +48,19 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def no_cache(request: Request, call_next):
+    response: Response = await call_next(request)
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate"
+    response.headers["Pragma"] = "no-cache"
+    return response
+
 app.include_router(stats.router,     prefix="/api")
 app.include_router(devices.router,   prefix="/api")
 app.include_router(traffic.router,   prefix="/api")
 app.include_router(rules.router,     prefix="/api")
 app.include_router(schedules.router, prefix="/api")
+app.include_router(settings.router,  prefix="/api")
 
 
 if __name__ == "__main__":
