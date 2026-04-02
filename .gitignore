@@ -17,8 +17,9 @@ out/
 # Pi deploy artefacts
 /opt/
 
-# SSH key — never commit
+# Secrets — never commit
 deploy/pi_key
+deploy/cf_token
 
 # macOS
 .DS_Store
