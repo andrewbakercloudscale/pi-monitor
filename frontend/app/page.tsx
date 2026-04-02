@@ -46,6 +46,7 @@ export default function Dashboard() {
   const [rules, setRules]     = useState<Rule[]>([]);
   const [loading, setLoading] = useState(true);
   const [version, setVersion] = useState<string | null>(null);
+  const [domainSearch, setDomainSearch] = useState("");
 
   const [blockingDomain, setBlockingDomain]     = useState<string | null>(null);
   const [unblockingDomain, setUnblockingDomain] = useState<string | null>(null);
@@ -250,7 +251,15 @@ export default function Dashboard() {
           {/* Top Domains */}
           <Card>
             <CardHeader className="pb-2">
-              <h2 className="text-base font-semibold text-muted-foreground">Top Domains</h2>
+              <div className="flex items-center justify-between gap-4">
+                <h2 className="text-base font-semibold text-muted-foreground">Top Domains</h2>
+                <Input
+                  placeholder="Search domains…"
+                  value={domainSearch}
+                  onChange={(e) => setDomainSearch(e.target.value)}
+                  className="h-7 w-48 text-xs"
+                />
+              </div>
             </CardHeader>
             <CardContent className="p-0">
               <Table>
@@ -271,12 +280,14 @@ export default function Dashboard() {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {traffic.length === 0 && (
+                  {traffic.filter((d) => !domainSearch || d.domain.includes(domainSearch.toLowerCase())).length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={isToday ? 10 : 6} className="text-muted-foreground text-sm text-center py-4">No data</TableCell>
+                      <TableCell colSpan={isToday ? 10 : 6} className="text-muted-foreground text-sm text-center py-4">
+                        {domainSearch ? `No domains matching "${domainSearch}"` : "No data"}
+                      </TableCell>
                     </TableRow>
                   )}
-                  {traffic.map((d) => {
+                  {traffic.filter((d) => !domainSearch || d.domain.includes(domainSearch.toLowerCase())).map((d) => {
                     const blocked    = isBlocked(d.domain);
                     const isVpnHost  = isVpn(d.domain);
                     const inProgress = blockingDomain === d.domain;
