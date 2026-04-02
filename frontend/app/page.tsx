@@ -215,7 +215,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <h1 className="text-2xl font-bold">Dashboard <span className="text-sm font-normal text-muted-foreground">v0.2.0</span></h1>
         <DatePicker value={date} onChange={setDate} />
       </div>
 
