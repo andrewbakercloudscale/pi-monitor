@@ -53,7 +53,7 @@ export default function MobileNav() {
   return (
     <>
       {/* Top header bar — mobile only */}
-      <header className="md:hidden fixed top-0 inset-x-0 h-14 bg-slate-900 flex items-center justify-between px-4 z-40 shadow-md">
+      <header className="lg:hidden fixed top-0 inset-x-0 h-14 bg-slate-900 flex items-center justify-between px-4 z-40 shadow-md">
         <div className="flex items-center gap-2.5">
           <div className="w-7 h-7 rounded-lg bg-blue-500 flex items-center justify-center shadow shadow-blue-500/30">
             <svg className="w-3.5 h-3.5 text-white" fill="currentColor" viewBox="0 0 20 20">
@@ -76,14 +76,14 @@ export default function MobileNav() {
       {/* Backdrop */}
       {open && (
         <div
-          className="md:hidden fixed inset-0 bg-black/50 z-50"
+          className="lg:hidden fixed inset-0 bg-black/50 z-50"
           onClick={() => setOpen(false)}
         />
       )}
 
       {/* Slide-out drawer */}
       <div className={cn(
-        "md:hidden fixed inset-y-0 left-0 w-64 bg-slate-900 z-50 flex flex-col shadow-2xl transition-transform duration-200",
+        "lg:hidden fixed inset-y-0 left-0 w-64 bg-slate-900 z-50 flex flex-col shadow-2xl transition-transform duration-200",
         open ? "translate-x-0" : "-translate-x-full"
       )}>
         {/* Drawer header */}

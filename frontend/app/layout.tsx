@@ -21,7 +21,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         {/* Desktop sidebar */}
         <Sidebar />
         {/* Main content — offset for sidebar on md+ */}
-        <div className="md:pl-64 flex flex-col min-h-screen pt-14 md:pt-0">
+        <div className="lg:pl-64 flex flex-col min-h-screen pt-14 lg:pt-0">
           <main className="flex-1 p-4 md:p-8 max-w-6xl w-full mx-auto">
             {children}
           </main>
