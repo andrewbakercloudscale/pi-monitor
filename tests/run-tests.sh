@@ -22,7 +22,8 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PI_HOST="${PI_HOST:-YOUR-PI-LAN-IP}"
 PI_ADMIN_USER="pi"
-PI_ADMIN_KEY="${SSH_KEY:-$HOME/.ssh/pi_key}"
+REPO_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+PI_ADMIN_KEY="${SSH_KEY:-$REPO_DIR/deploy/pi_key}"
 PI_SSH_OPTS="-i $PI_ADMIN_KEY -o StrictHostKeyChecking=no -o ConnectTimeout=10 -o BatchMode=yes"
 
 TEST_USER="pi-test-runner"

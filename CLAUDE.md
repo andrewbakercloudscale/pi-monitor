@@ -5,7 +5,7 @@ Self-hosted parental controls dashboard. FastAPI backend + Next.js frontend runn
 
 ## Infrastructure
 - **Pi IP**: `YOUR-PI-LAN-IP`
-- **SSH**: `ssh -i ~/.ssh/pi_key pi@YOUR-PI-LAN-IP`
+- **SSH**: `ssh -i deploy/pi_key pi@YOUR-PI-LAN-IP`
 - **API**: FastAPI on `:8080`, files at `/opt/pi-monitor/api/`
 - **Frontend**: nginx on `:3001`, static files at `/opt/pi-monitor/frontend/`
 - **Exposed via**: Cloudflare Tunnel (`cloudflared`) → `pi.andrewbaker.ninja`
@@ -17,13 +17,13 @@ Self-hosted parental controls dashboard. FastAPI backend + Next.js frontend runn
 ### Frontend
 ```bash
 cd frontend && npm run build
-rsync -az --delete -e "ssh -i ~/.ssh/pi_key" out/ pi@YOUR-PI-LAN-IP:/opt/pi-monitor/frontend/
+rsync -az --delete -e "ssh -i deploy/pi_key" out/ pi@YOUR-PI-LAN-IP:/opt/pi-monitor/frontend/
 ```
 
 ### Backend (single file)
 ```bash
-scp -i ~/.ssh/pi_key api/<file>.py pi@YOUR-PI-LAN-IP:/opt/pi-monitor/api/<file>.py
-ssh -i ~/.ssh/pi_key pi@YOUR-PI-LAN-IP "sudo systemctl restart pi-monitor-api"
+scp -i deploy/pi_key api/<file>.py pi@YOUR-PI-LAN-IP:/opt/pi-monitor/api/<file>.py
+ssh -i deploy/pi_key pi@YOUR-PI-LAN-IP "sudo systemctl restart pi-monitor-api"
 ```
 
 ### Git push

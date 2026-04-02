@@ -26,7 +26,8 @@ die()  { echo -e "${RED}✗  ERROR:${NC} $*" >&2; exit 1; }
 step() { echo -e "\n${BOLD}── $* ──${NC}"; }
 
 # ── SSH helper ─────────────────────────────────────────────────────────────
-SSH_KEY="${SSH_KEY:-$HOME/.ssh/pi_key}"
+DEPLOY_DIR="$(cd "$(dirname "$0")" && pwd)"
+SSH_KEY="${SSH_KEY:-$DEPLOY_DIR/pi_key}"
 SSH_KEY_OPT=""
 [ -f "$SSH_KEY" ] && SSH_KEY_OPT="-i $SSH_KEY"
 SSH_OPTS="$SSH_KEY_OPT -o StrictHostKeyChecking=no -o ConnectTimeout=10 -o BatchMode=no"
@@ -69,7 +70,7 @@ echo "{\"version\": \"$LOCAL_VERSION\", \"build\": \"$BUILD_TS\", \"deployed\": 
 # ── Step 2: Verify Pi is reachable ─────────────────────────────────────────
 step "Checking Pi connectivity"
 if ! run_ssh "echo ok" &>/dev/null; then
-    die "Cannot reach ${PI_USER}@${PI_HOST}. Check that ~/.ssh/pi_key exists."
+    die "Cannot reach ${PI_USER}@${PI_HOST}. Check that deploy/pi_key exists."
 fi
 ok "Pi is reachable"
 
