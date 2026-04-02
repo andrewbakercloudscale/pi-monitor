@@ -152,9 +152,9 @@ export const api = {
     ),
 
   rules: (category?: string) =>
-    category
-      ? apiFetch<{ rules: Rule[]; categories: Record<string, CategoryMeta> }>(`/api/rules?category=${category}`)
-      : cachedFetch<{ rules: Rule[]; categories: Record<string, CategoryMeta> }>("cache:rules", "/api/rules"),
+    apiFetch<{ rules: Rule[]; categories: Record<string, CategoryMeta> }>(
+      category ? `/api/rules?category=${category}` : "/api/rules"
+    ),
 
   invalidateRules: () => cacheInvalidate("cache:rules"),
 

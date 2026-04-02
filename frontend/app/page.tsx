@@ -59,7 +59,6 @@ export default function Dashboard() {
 
   useEffect(() => {
     setLoading(true);
-    api.invalidateRules(); // always load fresh rule states
     Promise.all([api.stats(date), api.traffic(date, 20), api.blocks(date, 200), api.rules()])
       .then(([s, t, b, r]) => {
         setStats(s);
