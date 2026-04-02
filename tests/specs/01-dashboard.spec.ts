@@ -108,10 +108,9 @@ test.describe("Dashboard", () => {
   });
 
   test("top domains table has Blocked and Last Blocked columns", async ({ page }) => {
-    // Column headers must be present
-    const table = page.locator("h2:has-text('Top Domains')").locator("..").locator("table");
-    await expect(table.locator("th:has-text('Blocked')").first()).toBeVisible();
-    await expect(table.locator("th:has-text('Last Blocked')")).toBeVisible();
+    // "Blocked" and "Last Blocked" headers only exist in the Top Domains table
+    await expect(page.locator("th:has-text('Last Blocked')").first()).toBeVisible();
+    await expect(page.locator("th", { hasText: /^Blocked$/ }).first()).toBeVisible();
   });
 
   test("blocked domain shows Shield badge (not Block button) in Top Domains", async ({ page }) => {
@@ -140,33 +139,26 @@ test.describe("Dashboard", () => {
   });
 
   test("domain row with block history shows a count in Blocked column", async ({ page }) => {
-    // Find any row in Top Domains that has a non-dash Blocked count
-    const table = page.locator("h2:has-text('Top Domains')").locator("..").locator("table");
-    const rows  = table.locator("tbody tr");
-    const n     = await rows.count();
+    const API = process.env.API_URL ?? "http://192.168.0.51:8080";
 
-    let foundBlockCount = false;
-    for (let i = 0; i < Math.min(n, 20); i++) {
-      const cells = rows.nth(i).locator("td");
-      const cellCount = await cells.count();
-      // Blocked count cell is 3rd from end (before Last Blocked, Devices, action)
-      if (cellCount >= 4) {
-        const blockedCell = cells.nth(cellCount - 4);
-        const text = await blockedCell.innerText();
-        if (text !== "—" && /^\d/.test(text)) {
-          foundBlockCount = true;
-          // Last Blocked cell should also have a value
-          const lastBlockedCell = cells.nth(cellCount - 3);
-          const lbText = await lastBlockedCell.innerText();
-          expect(lbText).not.toBe("—");
-          break;
-        }
-      }
-    }
-    // Only fail if there are blocks today but none appeared in the table
-    const { blocks } = await (await page.request.get(`${process.env.API_URL ?? "http://192.168.0.51:8080"}/api/blocks?limit=1`)).json();
-    if (blocks.length > 0) {
-      expect(foundBlockCount, "Expected at least one row to show a block count").toBe(true);
-    }
+    // Only meaningful if there are blocks today
+    const { blocks } = await (await page.request.get(`${API}/api/blocks?limit=5`)).json();
+    if (blocks.length === 0) return; // no blocks today — skip
+
+    // The top blocked domain should appear in the traffic table with a count
+    const topBlocked = blocks[0].domain as string;
+
+    // Wait for the row to be present
+    const row = page.locator("table tbody tr").filter({ hasText: topBlocked }).first();
+    await expect(row).toBeVisible({ timeout: 10_000 });
+
+    // The "Blocked" count cell (2nd from last before Devices/Action) must not be "—"
+    const cells     = row.locator("td");
+    const cellCount = await cells.count();
+    const blockedCell     = cells.nth(cellCount - 4); // Blocked count
+    const lastBlockedCell = cells.nth(cellCount - 3); // Last Blocked
+
+    await expect(blockedCell).not.toHaveText("—");
+    await expect(lastBlockedCell).not.toHaveText("—");
   });
 });
