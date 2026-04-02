@@ -105,6 +105,12 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_read_timeout 30s;
+        # Strip any cache headers the upstream sends, then force no-store
+        # so Cloudflare cannot cache API responses
+        proxy_hide_header Cache-Control;
+        proxy_hide_header Pragma;
+        add_header Cache-Control "no-store, no-cache, must-revalidate" always;
+        add_header Pragma "no-cache" always;
     }
 
     location ~* \.html$ {
@@ -161,6 +167,23 @@ fi
 
 DEPLOYED_BUILD=$(run_ssh "cat $PI_DIR/frontend/build-info.json 2>/dev/null || echo unknown")
 ok "Frontend deployed: $DEPLOYED_BUILD"
+
+# ── Step 8: Purge Cloudflare cache ─────────────────────────────────────────
+step "Purging Cloudflare cache"
+CF_TOKEN_FILE="$DEPLOY_DIR/cf_token"
+if [ -f "$CF_TOKEN_FILE" ]; then
+    source "$CF_TOKEN_FILE"
+    PURGE=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/YOUR-CF-ZONE-ID/purge_cache" \
+        -H "X-Auth-Email: $CF_EMAIL" -H "X-Auth-Key: $CF_KEY" -H "Content-Type: application/json" \
+        --data '{"purge_everything":true}')
+    if echo "$PURGE" | grep -q '"success":true'; then
+        ok "Cloudflare cache purged"
+    else
+        warn "CF purge failed: $PURGE"
+    fi
+else
+    warn "deploy/cf_token not found — skipping CF cache purge"
+fi
 
 # ── Done ───────────────────────────────────────────────────────────────────
 echo ""
