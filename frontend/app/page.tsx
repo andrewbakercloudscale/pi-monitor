@@ -316,9 +316,16 @@ export default function Dashboard() {
                           </TableCell>
                           <TableCell>
                             {blocked ? (
-                              <Badge variant="destructive" className="text-xs h-5 px-1.5 bg-red-50 text-red-400 border-red-200 hover:bg-red-50">
-                                <Shield className="w-3 h-3 mr-1" />Blocked
-                              </Badge>
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                className="h-6 text-xs px-2 bg-red-50 text-red-400 border-red-200 hover:bg-red-100 hover:text-red-600"
+                                onClick={() => unblockDomain(d.domain)}
+                                disabled={unblockingDomain === d.domain}
+                              >
+                                <Shield className="w-3 h-3 mr-1" />
+                                {unblockingDomain === d.domain ? "…" : "Unblock"}
+                              </Button>
                             ) : (
                               <Button
                                 variant="outline"
