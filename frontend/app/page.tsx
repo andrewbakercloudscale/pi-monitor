@@ -45,6 +45,7 @@ export default function Dashboard() {
   const [blocks, setBlocks]   = useState<BlockEntry[]>([]);
   const [rules, setRules]     = useState<Rule[]>([]);
   const [loading, setLoading] = useState(true);
+  const [version, setVersion] = useState<string | null>(null);
 
   const [blockingDomain, setBlockingDomain]     = useState<string | null>(null);
   const [unblockingDomain, setUnblockingDomain] = useState<string | null>(null);
@@ -56,6 +57,12 @@ export default function Dashboard() {
   // Device tagging
   const [tagging, setTagging]   = useState<string | null>(null); // client IP
   const [tagValue, setTagValue] = useState("");
+
+  useEffect(() => {
+    api.ping().then((p: { ok: boolean; version?: string }) => {
+      if (p.version) setVersion(p.version);
+    }).catch(() => {});
+  }, []);
 
   useEffect(() => {
     setLoading(true);
@@ -215,7 +222,7 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Dashboard <span className="text-sm font-normal text-muted-foreground">v0.2.0</span></h1>
+        <h1 className="text-2xl font-bold">Dashboard {version && <span className="text-sm font-normal text-muted-foreground">v{version}</span>}</h1>
         <DatePicker value={date} onChange={setDate} />
       </div>
 

@@ -5,9 +5,11 @@ import pihole
 router = APIRouter()
 
 
+VERSION = "0.3.0"
+
 @router.get("/ping")
 async def ping():
-    return {"ok": True}
+    return {"ok": True, "version": VERSION}
 
 
 @router.get("/stats")
