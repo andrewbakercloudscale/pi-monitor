@@ -1,19 +1,52 @@
 # cloudflared tunnel config
-# Place at: /home/pi/.cloudflared/config.yml
+# Live config on Pi at: /home/pi/.cloudflared/config.yml
+# Credentials file at:  /home/pi/.cloudflared/YOUR-TUNNEL-UUID.json
 #
-# Setup steps:
-#   1. cloudflared tunnel login
-#   2. cloudflared tunnel create pi-monitor
-#   3. Copy the tunnel UUID here (replaces <TUNNEL-UUID>)
-#   4. cloudflared tunnel route dns pi-monitor api.pi.andrewbaker.ninja
-#   5. sudo cp deploy/cloudflared.yml /home/pi/.cloudflared/config.yml
-#   6. sudo cloudflared service install
-#   7. sudo systemctl enable --now cloudflared
+# ── Tunnel details ──────────────────────────────────────────────────────────
+#   Tunnel name:  pi-monitor
+#   Tunnel UUID:  YOUR-TUNNEL-UUID
+#   CF Zone:      andrewbaker.ninja  (zone ID: YOUR-CF-ZONE-ID)
+#   cloudflared:  v2026.3.0
+#
+# ── DNS routes ──────────────────────────────────────────────────────────────
+#   pi.andrewbaker.ninja       → Pi nginx :3001 (Next.js frontend)
+#   api-pi.andrewbaker.ninja   → Pi FastAPI :8080 (API)
+#
+# ── Cloudflare caching ──────────────────────────────────────────────────────
+#   Page rule: pi.andrewbaker.ninja/*  →  cache_level = bypass
+#   All requests pass through to the Pi — nothing cached at CF edge.
+#
+# ── Cloudflare Access (Zero Trust → Access → Applications) ─────────────────
+#   App 1 — Frontend (requires Google login):
+#     Domain: pi.andrewbaker.ninja
+#     Policy: Allow — Google SSO
+#
+#   App 2 — API /api/* bypass (IMPORTANT):
+#     Domain: pi.andrewbaker.ninja/api
+#     Policy: Bypass — Everyone
+#     Reason: Next.js fetches /api/* via nginx proxy on the same origin.
+#             Without this bypass, CF Access blocks those fetch() calls.
+#
+# ── Service management on Pi ────────────────────────────────────────────────
+#   sudo systemctl status cloudflared
+#   sudo systemctl restart cloudflared
+#   sudo journalctl -u cloudflared -f
+#
+# ── To reinstall from scratch ───────────────────────────────────────────────
+#   cloudflared tunnel login
+#   cloudflared tunnel create pi-monitor
+#   cloudflared tunnel route dns pi-monitor pi.andrewbaker.ninja
+#   cloudflared tunnel route dns pi-monitor api-pi.andrewbaker.ninja
+#   sudo cp deploy/cloudflared.yml /home/pi/.cloudflared/config.yml
+#   sudo cloudflared service install
+#   sudo systemctl enable --now cloudflared
 
-tunnel: <TUNNEL-UUID>
-credentials-file: /home/pi/.cloudflared/<TUNNEL-UUID>.json
+tunnel: YOUR-TUNNEL-UUID
+credentials-file: /home/pi/.cloudflared/YOUR-TUNNEL-UUID.json
 
 ingress:
-  - hostname: api.pi.andrewbaker.ninja
+  - hostname: pi.andrewbaker.ninja
+    service: http://127.0.0.1:3001
+  - hostname: api-pi.andrewbaker.ninja
     service: http://127.0.0.1:8080
   - service: http_status:404
