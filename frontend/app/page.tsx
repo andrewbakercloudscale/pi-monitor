@@ -28,6 +28,14 @@ function fmtRecent(n: number): string {
   return n > 0 ? n.toLocaleString() : "—";
 }
 
+function fmtLastBlocked(iso: string): string {
+  const d = new Date(iso);
+  const now = new Date();
+  const time = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+  if (d.toDateString() === now.toDateString()) return time;
+  return d.toLocaleDateString([], { month: "short", day: "numeric" }) + " " + time;
+}
+
 type DeviceMap = Record<string, { loading: boolean; devices: DomainDevice[] }>;
 
 export default function Dashboard() {
@@ -51,7 +59,8 @@ export default function Dashboard() {
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([api.stats(date), api.traffic(date, 20), api.blocks(date, 20), api.rules()])
+    api.invalidateRules(); // always load fresh rule states
+    Promise.all([api.stats(date), api.traffic(date, 20), api.blocks(date, 200), api.rules()])
       .then(([s, t, b, r]) => {
         setStats(s);
         setTraffic(t.domains);
@@ -249,6 +258,8 @@ export default function Dashboard() {
                       <TableHead className="text-right text-xs uppercase tracking-wide">10 min</TableHead>
                       <TableHead className="text-right text-xs uppercase tracking-wide">30 min</TableHead>
                     </>}
+                    <TableHead className="text-right text-xs uppercase tracking-wide">Blocked</TableHead>
+                    <TableHead className="text-right text-xs uppercase tracking-wide">Last Blocked</TableHead>
                     <TableHead className="text-xs uppercase tracking-wide w-24">Devices</TableHead>
                     <TableHead />
                   </TableRow>
@@ -256,7 +267,7 @@ export default function Dashboard() {
                 <TableBody>
                   {traffic.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={isToday ? 8 : 4} className="text-muted-foreground text-sm text-center py-4">No data</TableCell>
+                      <TableCell colSpan={isToday ? 10 : 6} className="text-muted-foreground text-sm text-center py-4">No data</TableCell>
                     </TableRow>
                   )}
                   {traffic.map((d) => {
@@ -265,6 +276,7 @@ export default function Dashboard() {
                     const inProgress = blockingDomain === d.domain;
                     const key        = `traffic:${d.domain}`;
                     const isOpen     = expanded.has(key);
+                    const blockEntry = blocks.find((b) => b.domain === d.domain);
                     return (
                       <>
                         <TableRow key={d.domain} className={isVpnHost ? "bg-orange-50" : ""}>
@@ -279,6 +291,12 @@ export default function Dashboard() {
                             <TableCell className="font-mono text-xs text-right text-blue-300">{fmtRecent(d.count_30m)}</TableCell>
                           </>}
                           {!isToday && <TableCell colSpan={4} />}
+                          <TableCell className="font-mono text-xs text-right text-red-500">
+                            {blockEntry ? blockEntry.count.toLocaleString() : "—"}
+                          </TableCell>
+                          <TableCell className="font-mono text-xs text-right text-muted-foreground whitespace-nowrap">
+                            {blockEntry?.last_at ? fmtLastBlocked(blockEntry.last_at) : "—"}
+                          </TableCell>
                           <TableCell>
                             <Button
                               variant="ghost"
