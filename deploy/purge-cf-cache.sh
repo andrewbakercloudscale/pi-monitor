@@ -5,10 +5,10 @@ set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 CF_TOKEN_FILE="$SCRIPT_DIR/cf_token"
-CF_ZONE="YOUR-CF-ZONE-ID"
 
 [ -f "$CF_TOKEN_FILE" ] || { echo "✗  deploy/cf_token not found"; exit 1; }
 source "$CF_TOKEN_FILE"
+# cf_token must export: CF_EMAIL, CF_KEY, CF_ZONE (zone ID)
 
 RESULT=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/$CF_ZONE/purge_cache" \
     -H "X-Auth-Email: $CF_EMAIL" -H "X-Auth-Key: $CF_KEY" -H "Content-Type: application/json" \

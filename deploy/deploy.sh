@@ -173,7 +173,8 @@ step "Purging Cloudflare cache"
 CF_TOKEN_FILE="$DEPLOY_DIR/cf_token"
 if [ -f "$CF_TOKEN_FILE" ]; then
     source "$CF_TOKEN_FILE"
-    PURGE=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/YOUR-CF-ZONE-ID/purge_cache" \
+    # cf_token must export: CF_EMAIL, CF_KEY, CF_ZONE (zone ID)
+    PURGE=$(curl -s -X POST "https://api.cloudflare.com/client/v4/zones/${CF_ZONE}/purge_cache" \
         -H "X-Auth-Email: $CF_EMAIL" -H "X-Auth-Key: $CF_KEY" -H "Content-Type: application/json" \
         --data '{"purge_everything":true}')
     if echo "$PURGE" | grep -q '"success":true'; then
